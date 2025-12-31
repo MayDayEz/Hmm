@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Blue Cake Reveal Smooth + Bigger Vertical Letter</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Kanit', sans-serif;
+}
+
+/* ===== Background ===== */
+.bg-light {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: #000;
+}
+
+/* ===== Cake ===== */
+.cake {
+  position: relative;
+  width: 260px;
+  z-index: 1;
+  opacity: 0;
+  filter: brightness(0.3);
+  cursor: pointer;
+}
+
+/* ===== Layers ===== */
+.layer {
+  height: 68px;
+  margin: 2px auto;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2f80ff, #0a1f44);
+  outline: 1px solid rgba(120,190,255,0.25);
+  box-shadow:
+    inset 0 0 12px rgba(80,180,255,0.22),
+    0 0 6px rgba(80,180,255,0.25),
+    0 0 12px rgba(80,160,255,0.15);
+}
+.layer1 { width: 160px; }
+.layer2 { width: 210px; }
+.layer3 { width: 260px; }
+
+/* ===== Candle Wrapper ===== */
+.candle-wrapper {
+  position: absolute;
+  top: -47px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: transform 0.35s ease;
+}
+
+/* ===== Candle ===== */
+.candle {
+  width: 15px;
+  height: 45px;
+  background: linear-gradient(#eee, #aaa);
+  border-radius: 4px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== Flame ===== */
+.flame {
+  position: absolute;
+  left: 50%;
+  top: -25px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 22px;
+  height: 22px;
+  background: radial-gradient(circle, #fff4b0, #ff9800);
+  border-radius: 50% 50% 50% 0;
+  pointer-events: none;
+  opacity: 0;
+  filter: brightness(0.3);
+  animation: flame 0.2s infinite alternate;
+}
+@keyframes flame {
+  from { transform: translateX(-50%) rotate(45deg) scale(1); }
+  to   { transform: translateX(-50%) rotate(45deg) scale(1.15); }
+}
+
+/* ===== Hover prepare remove ===== */
+.cake.ready:hover .candle-wrapper {
+  transform: translateX(-50%) translateY(-14px) rotate(-6deg);
+}
+
+/* ===== Letter (Bigger Vertical Envelope) ===== */
+.letter {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 640px;
+  height: 920px;
+  border-radius: 12px;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  z-index: 5;
+  overflow: hidden;
+  transition: all 0.8s ease;
+}
+.letter::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-left: 320px solid transparent;
+  border-right: 320px solid transparent;
+}
+.paper {
+  position: absolute;
+  top: 100px;
+  left: 40px;
+  width: 560px;
+  height: 720px;
+  background: #5e6370;
+  border-radius: 10px;
+  padding: 40px;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1.8;
+  text-align: center;
+}
+.paper p {
+  margin: 20px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg-light" id="bg"></div>
+
+<div class="cake" id="cake">
+  <div class="layer layer1">
+    <div class="candle-wrapper" id="candleWrapper">
+      <div class="flame" id="flame"></div>
+      <div class="candle"></div>
+    </div>
+  </div>
+  <div class="layer layer2"></div>
+  <div class="layer layer3"></div>
+</div>
+
+<div class="letter" id="letter">
+  <div class="paper">
+    <p>พี่ลิซคั้บ แบบว่า ด้วยความที่น้องเป็นโปรแกรมเมอร์และชอบการเขียนโปรแกรมอยู่แล้ว</p>
+    <p>แล้วมันเป็น 1 ในไม่กี่สิ่งที่น้องจะทำด้วยใจรัก รักในการเขียนโปรแกรม เป็นสิ่งที่น้องทุ่มเท</p>
+    <p>เพราะงั้น ถึงจะเป็นแค่รูปแบบง่ายๆ น้องก็ถือว่าทำให้พี่ด้วยใจ</p>
+    <p>สสวก.นะครับพี่ลิซ แล้วก็ HNY นะงับ ปีที่แล้วไม่รู้ว่ามีอะไรบ้างก็ช่างแม่งไป</p>
+    <p>ขอให้ปีนี้เป็นปีที่ดีของพี่นะ</p>
+    <p><strong>HBD , HNY 🎉</strong></p>
+  </div>
+</div>
+
+<script>
+const bg = document.getElementById("bg");
+const cake = document.getElementById("cake");
+const flame = document.getElementById("flame");
+const candleWrapper = document.getElementById("candleWrapper");
+const letter = document.getElementById("letter");
+
+let revealed = false;
+let progress = 0;
+let candleRemoved = false;
+
+/* ===== Mouse Reveal ===== */
+document.addEventListener("mousemove", e => {
+  if (revealed) return;
+  const x = e.clientX;
+  const y = e.clientY;
+
+  bg.style.background = `
+    radial-gradient(
+      circle 1000px at ${x}px ${y}px,
+      rgba(15,32,39,0.6),
+      rgba(15,32,39,0.3),
+      transparent 75%
+    )
+  `;
+
+  const r = cake.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top;
+  const t = 1 - Math.min(Math.hypot(x - cx, y - cy) / 450, 1);
+
+  cake.style.opacity = t;
+  cake.style.filter = `brightness(${0.3 + t * 0.7})`;
+  flame.style.opacity = t;
+  flame.style.filter = `brightness(${0.3 + t * 1.2})`;
+});
+
+/* ===== Click Reveal ===== */
+function revealStep() {
+  progress += 0.015;
+  if (progress > 1) progress = 1;
+
+  cake.style.opacity = progress;
+  cake.style.filter = `brightness(${0.3 + progress * 0.8})`;
+  flame.style.opacity = progress;
+  flame.style.filter = `brightness(${0.3 + progress * 1.3})`;
+
+  const r = cake.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top + r.height / 2;
+
+  bg.style.background = `
+    radial-gradient(
+      circle 1200px at ${cx}px ${cy}px,
+      rgba(15,32,39,${0.2 + progress * 0.8}) 0%,
+      rgba(15,32,39,${0.15 + progress * 0.6}) 40%,
+      rgba(15,32,39,${0.05 + progress * 0.3}) 65%,
+      transparent 85%
+    )
+  `;
+
+  if (progress < 1) {
+    requestAnimationFrame(revealStep);
+  } else {
+    cake.classList.add("ready");
+  }
+}
+
+cake.addEventListener("click", () => {
+  if (!revealed) {
+    revealed = true;
+    revealStep();
+  } else if (cake.classList.contains("ready") && !candleRemoved) {
+    // Animate candle removal
+    candleWrapper.animate([
+      { transform: "translateX(-50%) translateY(-14px) rotate(-6deg)", opacity: 1 },
+      { transform: "translateX(-50%) translateY(-120px) rotate(-20deg)", opacity: 0 }
+    ], {
+      duration: 600,
+      easing: "ease-in",
+      fill: "forwards"
+    });
+
+    candleRemoved = true;
+
+    // Show letter
+    setTimeout(() => {
+      letter.style.opacity = 1;
+      letter.style.transform = "translate(-50%, -50%) scale(1)";
+    }, 700);
+  }
+});
+</script>
+
+</body>
+</html>
